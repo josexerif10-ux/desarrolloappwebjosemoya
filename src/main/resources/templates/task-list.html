@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tasks</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/main.css}" rel="stylesheet"/>
+
+    <style>
+        .container {
+            max-width: 900px;
+        }
+
+        .form-select {
+            margin-top: 8px;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column h-100">
+
+<nav class="navbar navbar-expand navbar-dark bg-dark">
+    <div class="container-fluid">
+
+        <h1 class="d-flex align-items-center fs-4 text-white mb-0">
+            <img th:src="@{/img/descarga.jfif}" width="38" height="30" class="me-3" alt="Logo">
+            TaskHive
+        </h1>
+
+        <div class="collapse navbar-collapse navbar-options">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Inicio</a>
+                </li>
+
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link active" th:href="@{/task}">Tareas</a>
+                </li>
+
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin/}">Admin</a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <th:block th:with="auth=${#authentication.principal}">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                           th:text="${auth.username}">user</a>
+                    </th:block>
+
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <form th:action="@{/logout}" method="post" id="logoutForm"></form>
+                            <a class="dropdown-item" href="#"
+                               onclick="document.getElementById('logoutForm').submit();">
+                                Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">Login</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col">
+
+                <div class="card rounded-3">
+                    <div class="card-body p-4">
+
+                        <!-- FORMULARIO -->
+                        <form class="row row-cols-lg-auto g-3 justify-content-center align-items-center mb-4 pb-2"
+                              th:action="@{/task/submit}"
+                              method="POST"
+                              th:object="${newTask}"
+                              sec:authorize="hasRole('USER')">
+
+                            <div class="col-12">
+                                <h3>Crea una nueva tarea</h3>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Titulo de la tarea</label>
+                                <input type="text" class="form-control"
+                                       th:field="*{title}"/>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" rows="3"
+                                          th:field="*{description}"></textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" th:field="*{categoryId}">
+                                    <option value="-1">---</option>
+                                    <option th:each="category : ${categories}"
+                                            th:value="${category.id}"
+                                            th:text="${category.title}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Tags</label>
+                                <input type="text" class="form-control"
+                                       th:field="*{tags}"/>
+                            </div>
+
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                        <!-- FILTROS -->
+                        <div class="d-flex flex-wrap gap-2 mb-3" th:if="${param.emptyListError == null}">
+                            <a class="btn btn-outline-dark btn-sm" th:href="@{/task}">Todas</a>
+                            <a class="btn btn-outline-dark btn-sm" th:href="@{/task(completed=false)}">Pendientes</a>
+                            <a class="btn btn-outline-dark btn-sm" th:href="@{/task(completed=true)}">Completadas</a>
+                        </div>
+
+                        <form class="row g-2 align-items-end mb-4" method="get" th:action="@{/task}"
+                              th:if="${param.emptyListError == null}">
+                            <div class="col-auto">
+                                <label class="form-label mb-0">Desde</label>
+                                <input type="date" class="form-control form-control-sm" name="from"
+                                       th:value="${filterFrom}">
+                            </div>
+
+                            <div class="col-auto">
+                                <label class="form-label mb-0">Hasta</label>
+                                <input type="date" class="form-control form-control-sm" name="to"
+                                       th:value="${filterTo}">
+                            </div>
+
+                            <div class="col-auto">
+                                <label class="form-label mb-0">Estado</label>
+                                <select class="form-select form-select-sm" name="completed">
+                                    <option th:selected="${filterCompleted == null}" th:value="${null}">Todas</option>
+                                    <option th:selected="${filterCompleted != null && !filterCompleted}" value="false">Pendientes</option>
+                                    <option th:selected="${filterCompleted != null && filterCompleted}" value="true">Completadas</option>
+                                </select>
+                            </div>
+
+                            <div class="col-auto">
+                                <button class="btn btn-sm btn-primary" type="submit">Aplicar</button>
+                                <a class="btn btn-sm btn-outline-secondary" th:href="@{/task}">Limpiar</a>
+                            </div>
+                        </form>
+
+                        <form class="d-flex gap-2 mb-4" th:action="@{/category/submit}" method="post"
+                              sec:authorize="hasRole('ROLE_USER')">
+                            <input class="form-control" type="text" name="title" placeholder="Nueva categoría..." required>
+                            <button class="btn btn-outline-primary" type="submit">Crear</button>
+                        </form>
+                        <!-- EMPTY LIST -->
+                        <div class="container mt-4 empty-state" th:if="${param.emptyListError != null}">
+                            <h1 class="text-center">Crea tu primera tarea</h1>
+                            <img th:src="@{/img/error.jpg}" width="100%">
+                        </div>
+
+                        <!-- TASK LIST -->
+                        <table class="table mb-4"
+                               th:if="${param.emptyListError == null}">
+                            <thead>
+                            <tr>
+                                <th>Id.</th>
+                                <th>Título</th>
+                                <th>Descripción</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="task : ${taskList}"
+                                th:classappend="${task.completed} ? 'table-success'">
+                                <td th:text="${task.id}"></td>
+                                <td th:text="${task.title}"></td>
+                                <td th:text="${task.description}"></td>
+                                <td>
+                                    <a th:href="@{/task/{id}(id=${task.id})}"
+                                       class="btn btn-primary">Ver</a>
+
+                                    <a class="btn btn-danger"
+                                       th:onclick="|deleteTask(${task.id})|">Eliminar</a>
+
+                                    <form th:action="@{/task/{id}/del(id=${task.id})}"
+                                          method="post"
+                                          th:id="${'delete-task-'+task.id}"
+                                          style="display:none"></form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    function deleteTask(id) {
+        if (confirm('Are you sure?')) {
+            document.getElementById('delete-task-' + id).submit();
+        }
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

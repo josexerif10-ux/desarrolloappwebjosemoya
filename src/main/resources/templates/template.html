@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Template</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="../static/css/main.css" th:href="@{/css/main.css}" rel="stylesheet" />
+    <style>
+    </style>
+
+</head>
+<body class="d-flex flex-column h-100">
+<nav class="navbar navbar-expand navbar-dark bg-dark" aria-label="Second navbar example">
+    <div class="container-fluid">
+        <h1 class="d-flex align-items-center fs-4 text-white mb-0">
+            <img src="../static/img/logo.svg" th:src="@{/img/descarga.jfif}"
+                 width="38" height="30" class="me-3" alt="Bootstrap">
+            TaskHive
+        </h1>
+        <div class="collapse navbar-collapse navbar-options">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#" th:href="@{/}">Home</a>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" href="#" th:href="@{/task}">Tasks</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" href="#" th:href="@{/admin/}">Admin</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <th-block th:with="auth=${#authentication.getPrincipal()}">
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-expanded="false" th:text="${auth.fullname ?: 'User'}">User</a>
+                    </th-block>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown03">
+                        <li>
+                            <form style="display:none" th:action="@{/logout}" method="POST" id="logoutForm"></form>
+                            <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" href="#" th:href="@{/login}">Login</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<main class="flex-shrink-0">
+    <div class="container">
+    </div>
+</main>
+<footer class="footer mt-auto py-3 bg-light fixed-bottom">
+    <div class="container">
+        <input class="form-check-input" type="checkbox" value="" id="flexCheckCheckedDisabled" checked disabled>
+        <span class="text-muted">TaskHive - DESARROLLO EN ENTORNO SERVIDOR - JOSE ANTONIO MOYA RUIZ </span>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>
