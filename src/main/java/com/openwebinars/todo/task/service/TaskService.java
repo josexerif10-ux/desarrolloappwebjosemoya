@@ -12,6 +12,7 @@ import com.openwebinars.todo.task.model.TaskRepository;
 import com.openwebinars.todo.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,7 +30,6 @@ public class TaskService {
     private final TagService tagService;
 
     private List<Task> findAll(User user) {
-
         if (user != null) {
             return taskRepository.findByAuthor(user, Sort.by("createdAt").ascending());
         } else {
@@ -48,6 +48,20 @@ public class TaskService {
     public Task findById(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
+    }
+
+    public Task findByIdForUser(Long id, User user) {
+        Task task = findById(id);
+
+        if (user == null) {
+            throw new AccessDeniedException("Usuario no autenticado");
+        }
+
+        if (!task.getAuthor().getId().equals(user.getId())) {
+            throw new AccessDeniedException("No tienes permiso para acceder a esta tarea");
+        }
+
+        return task;
     }
 
     public List<Task> findAllFiltered(User user, Boolean completed, LocalDate from, LocalDate to) {
@@ -97,16 +111,18 @@ public class TaskService {
         return createOrEditTask(req, author);
     }
 
-    public Task editTask(EditTaskRequest req) {
-        return createOrEditTask(req, null);
+    public Task editTaskForUser(EditTaskRequest req, User user) {
+        Task oldTask = findByIdForUser(req.getId(), user);
+        return createOrEditTaskWithExisting(req, oldTask);
     }
 
     private Task createOrEditTask(CreateTaskRequest req, User author) {
 
-        Task task = new Task();
-        task.setTitle(req.getTitle());
-        task.setDescription(req.getDescription());
-        task.setDueDate(req.getDueDate());
+        Task task = Task.builder()
+                .title(req.getTitle())
+                .description(req.getDescription())
+                .DueDate(req.getDueDate())
+                .build();
 
         if (req.getCategoryId() == null || req.getCategoryId() == -1L) {
             req.setCategoryId(1L);
@@ -126,24 +142,55 @@ public class TaskService {
             task.getTags().addAll(tagService.saveOrGet(textTags));
         }
 
-        if (req instanceof EditTaskRequest editReq) {
-            Task oldTask = findById(editReq.getId());
-            task.setId(oldTask.getId());
-            task.setCreatedAt(oldTask.getCreatedAt());
-            task.setAuthor(oldTask.getAuthor());
-            task.setCompleted(editReq.isCompleted());
-        } else {
-            task.setAuthor(author);
-            task.setCompleted(false);
-        }
+        task.setAuthor(author);
+        task.setCompleted(false);
 
         return taskRepository.save(task);
     }
 
-    public Task toggleComplete(Long id) {
-        Task task = findById(id);
+    private Task createOrEditTaskWithExisting(EditTaskRequest req, Task oldTask) {
+
+        Task task = Task.builder()
+                .title(req.getTitle())
+                .description(req.getDescription())
+                .DueDate(req.getDueDate())
+                .build();
+
+        if (req.getCategoryId() == null || req.getCategoryId() == -1L) {
+            req.setCategoryId(1L);
+        }
+
+        Category category = categoryRepository.getReferenceById(req.getCategoryId());
+        task.setCategory(category);
+
+        String rawTags = req.getTags() != null ? req.getTags() : "";
+
+        List<String> textTags = Arrays.stream(rawTags.split(","))
+                .map(String::trim)
+                .filter(tag -> !tag.isBlank())
+                .toList();
+
+        if (!textTags.isEmpty()) {
+            task.getTags().addAll(tagService.saveOrGet(textTags));
+        }
+
+        task.setId(oldTask.getId());
+        task.setCreatedAt(oldTask.getCreatedAt());
+        task.setAuthor(oldTask.getAuthor());
+        task.setCompleted(req.isCompleted());
+
+        return taskRepository.save(task);
+    }
+
+    public Task toggleCompleteForUser(Long id, User user) {
+        Task task = findByIdForUser(id, user);
         task.setCompleted(!task.isCompleted());
         return taskRepository.save(task);
+    }
+
+    public void deleteByIdForUser(Long id, User user) {
+        Task task = findByIdForUser(id, user);
+        taskRepository.delete(task);
     }
 
     public void deleteById(Long id) {

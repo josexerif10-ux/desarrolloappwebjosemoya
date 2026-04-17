@@ -1,4 +1,3 @@
-
 package com.openwebinars.todo.task.controller;
 
 import com.openwebinars.todo.category.model.Category;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-
 @Controller
 @RequiredArgsConstructor
 public class TaskController {
@@ -33,7 +31,6 @@ public class TaskController {
         return categoryService.findAllByUser(user);
     }
 
-
     @GetMapping({"/", "/list", "/task"})
     public String taskList(
             Model model,
@@ -45,7 +42,6 @@ public class TaskController {
         model.addAttribute("taskList", taskService.findAllFiltered(user, completed, from, to));
         model.addAttribute("newTask", new CreateTaskRequest());
 
-        // para mantener el estado del filtro en la vista
         model.addAttribute("filterCompleted", completed);
         model.addAttribute("filterFrom", from);
         model.addAttribute("filterTo", to);
@@ -60,7 +56,6 @@ public class TaskController {
             @AuthenticationPrincipal User author,
             Model model) {
 
-
         if (bindingResult.hasErrors()) {
             model.addAttribute("taskList", taskService.findAllByUser(author));
             return "task-list";
@@ -72,42 +67,43 @@ public class TaskController {
     }
 
     @GetMapping("/task/{id}")
-    public String viewOrEditTask(@PathVariable Long id, Model model) {
+    public String viewOrEditTask(@PathVariable Long id,
+                                 @AuthenticationPrincipal User user,
+                                 Model model) {
 
-        Task task = taskService.findById(id);
+        Task task = taskService.findByIdForUser(id, user);
         EditTaskRequest editTask = EditTaskRequest.of(task);
         model.addAttribute("task", editTask);
         return "show-task";
-
     }
 
     @PostMapping("/task/edit/submit")
     public String taskEditSubmit(
             @Valid @ModelAttribute("task") EditTaskRequest req,
             BindingResult bindingResult,
+            @AuthenticationPrincipal User user,
             Model model) {
-
 
         if (bindingResult.hasErrors()) {
             return "show-task";
         }
 
-        taskService.editTask(req);
+        taskService.editTaskForUser(req, user);
 
         return "redirect:/";
     }
 
     @GetMapping("/task/{id}/toggle")
-    public String toggleTask(@PathVariable Long id) {
-        taskService.toggleComplete(id);
+    public String toggleTask(@PathVariable Long id,
+                             @AuthenticationPrincipal User user) {
+        taskService.toggleCompleteForUser(id, user);
         return "redirect:/";
     }
 
     @PostMapping("/task/{id}/del")
-    public String deleteTask(@PathVariable Long id) {
-        taskService.deleteById(id);
+    public String deleteTask(@PathVariable Long id,
+                             @AuthenticationPrincipal User user) {
+        taskService.deleteByIdForUser(id, user);
         return "redirect:/";
     }
-
-
 }
