@@ -31,7 +31,7 @@ public class TaskController {
         return categoryService.findAllByUser(user);
     }
 
-    @GetMapping({"/", "/list", "/task"})
+    @GetMapping({"/list", "/task"})
     public String taskList(
             Model model,
             @AuthenticationPrincipal User user,

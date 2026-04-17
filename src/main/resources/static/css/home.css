@@ -1,0 +1,104 @@
+.hero-section {
+    background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+    padding: 80px 0;
+}
+
+.hero-badge {
+    display: inline-block;
+    background-color: #e9f2ff;
+    color: #0d6efd;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 18px;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.hero-text {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 24px;
+}
+
+.hero-buttons {
+    margin-top: 24px;
+}
+
+.user-home-card {
+    border: none;
+    border-radius: 18px;
+}
+
+.home-user-avatar {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #dee2e6;
+}
+
+.features-section {
+    padding: 70px 0;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.section-subtitle {
+    color: #6c757d;
+    margin-top: 10px;
+}
+
+.feature-card {
+    border: none;
+    border-radius: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card .card-body {
+    padding: 24px;
+}
+
+.feature-card .card-title {
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.feature-card .card-text {
+    color: #6c757d;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+}
+
+.navbar-avatar {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-section {
+        padding: 50px 0;
+    }
+
+    .features-section {
+        padding: 50px 0;
+    }
+}
