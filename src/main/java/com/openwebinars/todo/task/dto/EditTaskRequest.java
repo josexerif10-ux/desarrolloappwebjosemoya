@@ -7,7 +7,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
@@ -23,7 +25,6 @@ public class EditTaskRequest extends CreateTaskRequest{
     private LocalDateTime createdAt;
     private String username;
 
-
     public static EditTaskRequest of(Task task) {
         return EditTaskRequest.builder()
                 .id(task.getId())
@@ -33,6 +34,7 @@ public class EditTaskRequest extends CreateTaskRequest{
                 .title(task.getTitle())
                 .description(task.getDescription())
                 .categoryId(task.getCategory().getId())
+                .dueDate(task.getDueDate())
                 .tags(task.getTags().stream().map(Tag::getText).collect(Collectors.joining(", ")))
                 .build();
     }

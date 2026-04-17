@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -32,8 +33,11 @@ public class Task {
 
     private boolean completed;
 
+
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    private LocalDate DueDate;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "task_tag",

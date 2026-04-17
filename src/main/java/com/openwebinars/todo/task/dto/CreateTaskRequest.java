@@ -8,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -24,5 +27,8 @@ public class CreateTaskRequest {
     @NotNull(message = "{task.categoryId.notnull}")
     @Positive(message = "{task.categoryId.notnull}")
     protected Long categoryId;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate dueDate;
 
 }

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi perfil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/main.css}" rel="stylesheet"/>
+</head>
+<body class="d-flex flex-column h-100">
+
+<nav class="navbar navbar-expand navbar-dark bg-dark">
+    <div class="container-fluid">
+        <h1 class="d-flex align-items-center fs-4 text-white mb-0">
+            <img th:src="@{/img/descarga.jfif}" width="38" height="30" class="me-3" alt="Logo">
+            TaskHive
+        </h1>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" th:href="@{/}">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/task}">Tareas</a></li>
+                <li class="nav-item"><a class="nav-link active" th:href="@{/profile}">Mi perfil</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-5">
+    <div class="card mx-auto" style="max-width: 600px;">
+        <div class="card-body text-center">
+            <img th:src="${userProfile.avatar}" alt="Avatar"
+                 style="width:120px; height:120px; object-fit:cover; border-radius:50%;">
+
+            <h2 class="mt-3" th:text="${userProfile.fullname}">Nombre Apellido</h2>
+            <p class="text-muted mb-1" th:text="${userProfile.username}">@username</p>
+            <p class="mb-1" th:text="${userProfile.email}">email@email.com</p>
+            <p class="mb-3" th:text="${userProfile.role}">USER</p>
+
+            <a class="btn btn-primary" th:href="@{/profile/edit}">Editar perfil</a>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

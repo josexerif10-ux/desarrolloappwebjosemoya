@@ -1,4 +1,3 @@
-
 package com.openwebinars.todo.task.service;
 
 import com.openwebinars.todo.category.model.Category;
@@ -29,17 +28,6 @@ public class TaskService {
     private final CategoryRepository categoryRepository;
     private final TagService tagService;
 
-        /*public List<Task> findAll() {
-
-        List<Task> result = taskRepository.findAll();
-
-        if (result.isEmpty())
-            throw new EmptyTaskListException();
-
-        return result;
-
-    }*/
-
     private List<Task> findAll(User user) {
 
         if (user != null) {
@@ -66,12 +54,10 @@ public class TaskService {
 
         Sort sort = Sort.by("createdAt").ascending();
 
-        // si no te llega usuario, reutiliza tu admin
         if (user == null) {
-            return findAllAdmin(); // mínimo cambio; si quieres filtros admin también lo hacemos
+            return findAllAdmin();
         }
 
-        // Normaliza fechas si llegan (de LocalDate a LocalDateTime)
         LocalDateTime fromDt = (from != null) ? from.atStartOfDay() : null;
         LocalDateTime toDt = (to != null) ? to.atTime(LocalTime.MAX) : null;
 
@@ -90,18 +76,19 @@ public class TaskService {
             result = taskRepository.findByAuthorAndCompletedAndCreatedAtBetween(user, completed, fromDt, toDt, sort);
 
         } else {
-            // Si llega solo from o solo to, hacemos un rango razonable:
             if (fromDt == null) fromDt = LocalDate.of(1970, 1, 1).atStartOfDay();
             if (toDt == null) toDt = LocalDate.of(3000, 1, 1).atTime(LocalTime.MAX);
 
-            if (completed == null)
+            if (completed == null) {
                 result = taskRepository.findByAuthorAndCreatedAtBetween(user, fromDt, toDt, sort);
-            else
+            } else {
                 result = taskRepository.findByAuthorAndCompletedAndCreatedAtBetween(user, completed, fromDt, toDt, sort);
+            }
         }
 
-        if (result.isEmpty())
+        if (result.isEmpty()) {
             throw new EmptyTaskListException();
+        }
 
         return result;
     }
@@ -116,27 +103,29 @@ public class TaskService {
 
     private Task createOrEditTask(CreateTaskRequest req, User author) {
 
-        Task task = Task.builder()
-                .title(req.getTitle())
-                .description(req.getDescription())
-                .build();
+        Task task = new Task();
+        task.setTitle(req.getTitle());
+        task.setDescription(req.getDescription());
+        task.setDueDate(req.getDueDate());
 
-        if (req.getCategoryId() == null || req.getCategoryId() == -1L)
+        if (req.getCategoryId() == null || req.getCategoryId() == -1L) {
             req.setCategoryId(1L);
-        Category category = categoryRepository.getReferenceById(req.getCategoryId());
-        if (category == null) // Categoría por defecto
-            category = categoryRepository.getReferenceById(1L);
+        }
 
+        Category category = categoryRepository.getReferenceById(req.getCategoryId());
         task.setCategory(category);
 
-        // Procesamos los tags que vienen en forma de tag1,tag2,tag3
-        List<String> textTags = Arrays.stream(req.getTags().split(","))
-                .map(String::trim)
-                .toList();
-        // Los añadimos a task
-        task.getTags().addAll(tagService.saveOrGet(textTags));
+        String rawTags = req.getTags() != null ? req.getTags() : "";
 
-        // Esto solamente se procesa si queremos editar un Task
+        List<String> textTags = Arrays.stream(rawTags.split(","))
+                .map(String::trim)
+                .filter(tag -> !tag.isBlank())
+                .toList();
+
+        if (!textTags.isEmpty()) {
+            task.getTags().addAll(tagService.saveOrGet(textTags));
+        }
+
         if (req instanceof EditTaskRequest editReq) {
             Task oldTask = findById(editReq.getId());
             task.setId(oldTask.getId());
@@ -145,11 +134,10 @@ public class TaskService {
             task.setCompleted(editReq.isCompleted());
         } else {
             task.setAuthor(author);
+            task.setCompleted(false);
         }
 
-        // Inserta o actualiza, según corresponda
         return taskRepository.save(task);
-
     }
 
     public Task toggleComplete(Long id) {
@@ -168,5 +156,4 @@ public class TaskService {
         taskRepository.saveAll(tasks);
         return tasks;
     }
-
 }

@@ -50,15 +50,27 @@
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                     <th:block th:with="auth=${#authentication.principal}">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
-                           th:text="${auth.username}">user</a>
+                        <a class="nav-link dropdown-toggle d-flex align-items-center"
+                           href="#"
+                           id="userDropdown"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+
+                            <img th:src="${auth.avatar}"
+                                 alt="Avatar"
+                                 style="width:32px; height:32px; object-fit:cover; border-radius:50%; margin-right:8px;">
+
+                            <span th:text="${auth.username}">user</span>
+                        </a>
                     </th:block>
 
-                    <ul class="dropdown-menu dropdown-menu-end">
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" th:href="@{/profile}">Mi perfil</a></li>
                         <li>
                             <form th:action="@{/logout}" method="post" id="logoutForm"></form>
                             <a class="dropdown-item" href="#"
-                               onclick="document.getElementById('logoutForm').submit();">
+                               onclick="document.getElementById('logoutForm').submit(); return false;">
                                 Logout
                             </a>
                         </li>
@@ -122,8 +134,15 @@
                             </div>
 
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary">Save</button>
+                                <label class="form-label">Fecha de vencimiento</label>
+                                <input type="date" class="form-control" th:field="*{dueDate}">
                             </div>
+
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">GUARDAR</button>
+                            </div>
+
+
                         </form>
                         <!-- FILTROS -->
                         <div class="d-flex flex-wrap gap-2 mb-3" th:if="${param.emptyListError == null}">
@@ -180,27 +199,32 @@
                                 <th>Id.</th>
                                 <th>Título</th>
                                 <th>Descripción</th>
+                                <th>Vencimiento</th>
+                                <th>Estado</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
 
                             <tbody>
                             <tr th:each="task : ${taskList}"
-                                th:classappend="${task.completed} ? 'table-success'">
-                                <td th:text="${task.id}"></td>
-                                <td th:text="${task.title}"></td>
-                                <td th:text="${task.description}"></td>
+                                th:classappend="${task.completed} ? 'table-success' : (${task.dueDate != null and task.dueDate.isBefore(T(java.time.LocalDate).now())} ? 'table-danger' : '')">
+                                <th scope="row" th:text="${task.id}">1</th>
+                                <td th:text="${task.author.fullname}">AutOR</td>
+                                <td th:text="${task.title}">Buy</td>
+                                <td th:text="${#strings.abbreviate(task.description,50)}">Texto</td>
+                                <td th:text="${task.dueDate != null ? task.dueDate : 'Sin fecha'}"></td>
                                 <td>
-                                    <a th:href="@{/task/{id}(id=${task.id})}"
-                                       class="btn btn-primary">Ver</a>
-
-                                    <a class="btn btn-danger"
-                                       th:onclick="|deleteTask(${task.id})|">Eliminar</a>
-
-                                    <form th:action="@{/task/{id}/del(id=${task.id})}"
+                                    <span class="badge bg-success" th:if="${task.completed}">Completada</span>
+                                    <span class="badge bg-warning text-dark" th:unless="${task.completed}">Pendiente</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/task/{id}(id=${task.id})}" class="btn btn-primary">View</a>
+                                    <a class="btn btn-danger" th:onclick="|deleteTask(${task.id})|">Delete</a>
+                                    <form style="display:none"
+                                          th:action="@{/task/{id}/del(id=${task.id})}"
                                           method="post"
-                                          th:id="${'delete-task-'+task.id}"
-                                          style="display:none"></form>
+                                          th:id="${'delete-task-'+task.id}"></form>
+
                                 </td>
                             </tr>
                             </tbody>

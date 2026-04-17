@@ -2,6 +2,7 @@
 package com.openwebinars.todo.user.service;
 
 import com.openwebinars.todo.user.dto.CreateUserRequest;
+import com.openwebinars.todo.user.dto.EditProfileRequest;
 import com.openwebinars.todo.user.model.User;
 import com.openwebinars.todo.user.model.UserRepository;
 import com.openwebinars.todo.user.model.UserRole;
@@ -27,11 +28,23 @@ public class UserService {
                         .username(request.getUsername())
                         .password(encoder.encode(request.getPassword()))
                         .email(request.getEmail())
+                        .avatar("/img/AVATARhorrible.png")
                         .fullname(request.getFullname())
                         .role(UserRole.USER)
                         .build()
         );
 
+    }
+
+    public User editProfile(User user, EditProfileRequest request) {
+        user.setFullname(request.getFullname());
+        user.setEmail(request.getEmail());
+
+        if (request.getAvatar() != null && !request.getAvatar().isBlank()) {
+            user.setAvatar(request.getAvatar());
+        }
+
+        return userRepository.save(user);
     }
 
     public User changeRole(User user, UserRole userRole) {
