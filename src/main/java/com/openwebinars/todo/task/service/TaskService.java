@@ -57,6 +57,10 @@ public class TaskService {
             throw new AccessDeniedException("Usuario no autenticado");
         }
 
+        if (task.getAuthor() == null || task.getAuthor().getId() == null) {
+            throw new AccessDeniedException("La tarea no tiene autor asignado");
+        }
+
         if (!task.getAuthor().getId().equals(user.getId())) {
             throw new AccessDeniedException("No tienes permiso para acceder a esta tarea");
         }
@@ -64,7 +68,7 @@ public class TaskService {
         return task;
     }
 
-    public List<Task> findAllFiltered(User user, Boolean completed, LocalDate from, LocalDate to) {
+    public List<Task> findAllFiltered(User user, String title, Boolean completed, Long categoryId, LocalDate from, LocalDate to) {
 
         Sort sort = Sort.by("createdAt").ascending();
 
@@ -72,32 +76,49 @@ public class TaskService {
             return findAllAdmin();
         }
 
-        LocalDateTime fromDt = (from != null) ? from.atStartOfDay() : null;
-        LocalDateTime toDt = (to != null) ? to.atTime(LocalTime.MAX) : null;
+        String safeTitle = (title != null) ? title.trim() : "";
+        boolean hasTitle = !safeTitle.isBlank();
+        boolean hasCategory = categoryId != null && categoryId > 0;
 
         List<Task> result;
 
-        if (completed == null && fromDt == null && toDt == null) {
+        if (!hasTitle && completed == null && !hasCategory) {
             result = taskRepository.findByAuthor(user, sort);
 
-        } else if (completed != null && fromDt == null && toDt == null) {
+        } else if (hasTitle && completed == null && !hasCategory) {
+            result = taskRepository.findByAuthorAndTitleContainingIgnoreCase(user, safeTitle, sort);
+
+        } else if (!hasTitle && completed != null && !hasCategory) {
             result = taskRepository.findByAuthorAndCompleted(user, completed, sort);
 
-        } else if (completed == null && fromDt != null && toDt != null) {
-            result = taskRepository.findByAuthorAndCreatedAtBetween(user, fromDt, toDt, sort);
+        } else if (!hasTitle && completed == null && hasCategory) {
+            result = taskRepository.findByAuthorAndCategory_Id(user, categoryId, sort);
 
-        } else if (completed != null && fromDt != null && toDt != null) {
-            result = taskRepository.findByAuthorAndCompletedAndCreatedAtBetween(user, completed, fromDt, toDt, sort);
+        } else if (!hasTitle && completed != null && hasCategory) {
+            result = taskRepository.findByAuthorAndCompletedAndCategory_Id(user, completed, categoryId, sort);
+
+        } else if (hasTitle && completed != null && !hasCategory) {
+            result = taskRepository.findByAuthorAndTitleContainingIgnoreCaseAndCompleted(user, safeTitle, completed, sort);
+
+        } else if (hasTitle && completed == null && hasCategory) {
+            result = taskRepository.findByAuthorAndTitleContainingIgnoreCaseAndCategory_Id(user, safeTitle, categoryId, sort);
 
         } else {
-            if (fromDt == null) fromDt = LocalDate.of(1970, 1, 1).atStartOfDay();
-            if (toDt == null) toDt = LocalDate.of(3000, 1, 1).atTime(LocalTime.MAX);
+            result = taskRepository.findByAuthorAndTitleContainingIgnoreCaseAndCompletedAndCategory_Id(user, safeTitle, completed, categoryId, sort);
+        }
 
-            if (completed == null) {
-                result = taskRepository.findByAuthorAndCreatedAtBetween(user, fromDt, toDt, sort);
-            } else {
-                result = taskRepository.findByAuthorAndCompletedAndCreatedAtBetween(user, completed, fromDt, toDt, sort);
-            }
+        if (from != null) {
+            LocalDateTime fromDt = from.atStartOfDay();
+            result = result.stream()
+                    .filter(task -> !task.getCreatedAt().isBefore(fromDt))
+                    .toList();
+        }
+
+        if (to != null) {
+            LocalDateTime toDt = to.atTime(LocalTime.MAX);
+            result = result.stream()
+                    .filter(task -> !task.getCreatedAt().isAfter(toDt))
+                    .toList();
         }
 
         if (result.isEmpty()) {

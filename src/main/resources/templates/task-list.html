@@ -13,7 +13,7 @@
 
     <style>
         .container {
-            max-width: 900px;
+            max-width: 1100px;
         }
 
         .form-select {
@@ -93,7 +93,7 @@
                 <div class="card rounded-3">
                     <div class="card-body p-4">
 
-                        <!-- FORMULARIO -->
+                        <!-- FORMULARIO NUEVA TAREA -->
                         <form class="row row-cols-lg-auto g-3 justify-content-center align-items-center mb-4 pb-2"
                               th:action="@{/task/submit}"
                               method="POST"
@@ -105,19 +105,17 @@
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Titulo de la tarea</label>
-                                <input type="text" class="form-control"
-                                       th:field="*{title}"/>
+                                <label class="form-label">Título de la tarea</label>
+                                <input type="text" class="form-control" th:field="*{title}"/>
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Description</label>
-                                <textarea class="form-control" rows="3"
-                                          th:field="*{description}"></textarea>
+                                <label class="form-label">Descripción</label>
+                                <textarea class="form-control" rows="3" th:field="*{description}"></textarea>
                             </div>
 
                             <div class="col-12">
-                                <label class="form-label">Category</label>
+                                <label class="form-label">Categoría</label>
                                 <select class="form-select" th:field="*{categoryId}">
                                     <option value="-1">---</option>
                                     <option th:each="category : ${categories}"
@@ -129,8 +127,7 @@
 
                             <div class="col-12">
                                 <label class="form-label">Tags</label>
-                                <input type="text" class="form-control"
-                                       th:field="*{tags}"/>
+                                <input type="text" class="form-control" th:field="*{tags}"/>
                             </div>
 
                             <div class="col-12">
@@ -141,18 +138,25 @@
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary">GUARDAR</button>
                             </div>
-
-
                         </form>
-                        <!-- FILTROS -->
+
+                        <!-- FILTROS RÁPIDOS -->
                         <div class="d-flex flex-wrap gap-2 mb-3" th:if="${param.emptyListError == null}">
                             <a class="btn btn-outline-dark btn-sm" th:href="@{/task}">Todas</a>
                             <a class="btn btn-outline-dark btn-sm" th:href="@{/task(completed=false)}">Pendientes</a>
                             <a class="btn btn-outline-dark btn-sm" th:href="@{/task(completed=true)}">Completadas</a>
                         </div>
 
+                        <!-- FILTROS AVANZADOS -->
                         <form class="row g-2 align-items-end mb-4" method="get" th:action="@{/task}"
                               th:if="${param.emptyListError == null}">
+
+                            <div class="col-auto">
+                                <label class="form-label mb-0">Título</label>
+                                <input type="text" class="form-control form-control-sm" name="title"
+                                       th:value="${filterTitle}" placeholder="Buscar por título">
+                            </div>
+
                             <div class="col-auto">
                                 <label class="form-label mb-0">Desde</label>
                                 <input type="date" class="form-control form-control-sm" name="from"
@@ -175,25 +179,38 @@
                             </div>
 
                             <div class="col-auto">
+                                <label class="form-label mb-0">Categoría</label>
+                                <select class="form-select form-select-sm" name="categoryId">
+                                    <option th:value="${null}" th:selected="${filterCategoryId == null}">Todas</option>
+                                    <option th:each="category : ${categories}"
+                                            th:value="${category.id}"
+                                            th:text="${category.title}"
+                                            th:selected="${filterCategoryId != null and filterCategoryId == category.id}">
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-auto">
                                 <button class="btn btn-sm btn-primary" type="submit">Aplicar</button>
                                 <a class="btn btn-sm btn-outline-secondary" th:href="@{/task}">Limpiar</a>
                             </div>
                         </form>
 
+                        <!-- CREAR CATEGORÍA -->
                         <form class="d-flex gap-2 mb-4" th:action="@{/category/submit}" method="post"
                               sec:authorize="hasRole('ROLE_USER')">
                             <input class="form-control" type="text" name="title" placeholder="Nueva categoría..." required>
                             <button class="btn btn-outline-primary" type="submit">Crear</button>
                         </form>
-                        <!-- EMPTY LIST -->
+
+                        <!-- LISTA VACÍA -->
                         <div class="container mt-4 empty-state" th:if="${param.emptyListError != null}">
                             <h1 class="text-center">Crea tu primera tarea</h1>
                             <img th:src="@{/img/error.jpg}" width="100%">
                         </div>
 
-                        <!-- TASK LIST -->
-                        <table class="table mb-4"
-                               th:if="${param.emptyListError == null}">
+                        <!-- TABLA TAREAS -->
+                        <table class="table mb-4" th:if="${param.emptyListError == null}">
                             <thead>
                             <tr>
                                 <th>Id.</th>
@@ -209,7 +226,6 @@
                             <tr th:each="task : ${taskList}"
                                 th:classappend="${task.completed} ? 'table-success' : (${task.dueDate != null and task.dueDate.isBefore(T(java.time.LocalDate).now())} ? 'table-danger' : '')">
                                 <th scope="row" th:text="${task.id}">1</th>
-                                <td th:text="${task.author.fullname}">AutOR</td>
                                 <td th:text="${task.title}">Buy</td>
                                 <td th:text="${#strings.abbreviate(task.description,50)}">Texto</td>
                                 <td th:text="${task.dueDate != null ? task.dueDate : 'Sin fecha'}"></td>
@@ -224,7 +240,6 @@
                                           th:action="@{/task/{id}/del(id=${task.id})}"
                                           method="post"
                                           th:id="${'delete-task-'+task.id}"></form>
-
                                 </td>
                             </tr>
                             </tbody>

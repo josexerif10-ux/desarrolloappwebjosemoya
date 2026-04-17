@@ -35,14 +35,18 @@ public class TaskController {
     public String taskList(
             Model model,
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) String title,
             @RequestParam(required = false) Boolean completed,
+            @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
     ) {
-        model.addAttribute("taskList", taskService.findAllFiltered(user, completed, from, to));
+        model.addAttribute("taskList", taskService.findAllFiltered(user, title, completed, categoryId, from, to));
         model.addAttribute("newTask", new CreateTaskRequest());
 
+        model.addAttribute("filterTitle", title);
         model.addAttribute("filterCompleted", completed);
+        model.addAttribute("filterCategoryId", categoryId);
         model.addAttribute("filterFrom", from);
         model.addAttribute("filterTo", to);
 
