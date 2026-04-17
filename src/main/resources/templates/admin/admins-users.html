@@ -1,11 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Template</title>
+  <title>Admin Users</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <link href="../static/css/main.css" th:href="@{/css/main.css}" rel="stylesheet" />
   <style>
@@ -16,9 +14,7 @@
     main {
       margin-top: 25px;
     }
-
   </style>
-
 </head>
 <body class="d-flex flex-column h-100">
 <nav class="navbar navbar-expand navbar-dark bg-dark" aria-label="Second navbar example">
@@ -34,7 +30,7 @@
           <a class="nav-link" href="#" th:href="@{/admin/}">Home</a>
         </li>
         <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
-          <a class="nav-link active" aria-current="page"  href="#" th:href="@{/admin/user}">Users</a>
+          <a class="nav-link active" aria-current="page" href="#" th:href="@{/admin/user}">Users</a>
         </li>
         <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
           <a class="nav-link" href="#" th:href="@{/admin/category}">Categories</a>
@@ -46,18 +42,37 @@
           <a class="nav-link" href="#" th:href="@{/task}">User Tasks</a>
         </li>
       </ul>
+
       <ul class="navbar-nav ms-auto">
         <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-          <th-block th:with="auth=${#authentication.getPrincipal()}">
-            <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-bs-toggle="dropdown" aria-expanded="false" th:text="${auth.fullname ?: 'User'}">User</a>
-          </th-block>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown03">
+          <th:block th:with="auth=${#authentication.principal}">
+            <a class="nav-link dropdown-toggle d-flex align-items-center"
+               href="#"
+               id="userDropdown"
+               role="button"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">
+
+              <img th:src="${auth.avatar}"
+                   alt="Avatar"
+                   style="width:32px; height:32px; object-fit:cover; border-radius:50%; margin-right:8px;">
+
+              <span th:text="${auth.fullname}">User</span>
+            </a>
+          </th:block>
+
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" th:href="@{/profile}">Mi perfil</a></li>
             <li>
               <form style="display:none" th:action="@{/logout}" method="POST" id="logoutForm"></form>
-              <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+              <a class="dropdown-item" href="#"
+                 onclick="document.getElementById('logoutForm').submit(); return false;">
+                Logout
+              </a>
             </li>
           </ul>
         </li>
+
         <li class="nav-item" sec:authorize="!isAuthenticated()">
           <a class="nav-link" href="#" th:href="@{/login}">Login</a>
         </li>
@@ -65,6 +80,7 @@
     </div>
   </div>
 </nav>
+
 <main class="flex-shrink-0">
   <div class="container">
     <table class="table mb-4">
@@ -92,15 +108,16 @@
       </tr>
       </tbody>
     </table>
-
   </div>
 </main>
+
 <footer class="footer mt-auto py-3 bg-light fixed-bottom">
   <div class="container">
     <input class="form-check-input" type="checkbox" value="" id="flexCheckCheckedDisabled" checked disabled>
     <span class="text-muted">TaskHive- Desarrollo en entorno servidor - JOSÉ ANTONIO MOYA RUIZ</span>
   </div>
 </footer>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 </html>
