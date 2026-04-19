@@ -6,20 +6,21 @@
     <title>Editar perfil</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link th:href="@{/css/main.css}" rel="stylesheet"/>
+    <link th:href="@{/css/profile.css}" rel="stylesheet"/>
 </head>
 <body class="d-flex flex-column h-100">
 
 <nav class="navbar navbar-expand navbar-dark bg-dark">
     <div class="container-fluid">
         <h1 class="d-flex align-items-center fs-4 text-white mb-0">
-            <img th:src="@{/img/TASKhiveLogo}" width="38" height="30" class="me-3" alt="Logo">
+            <img th:src="@{/img/TASKhiveLogo.png}" width="38" height="30" class="me-3" alt="Logo">
             TaskHive
         </h1>
     </div>
 </nav>
 
 <main class="container py-5">
-    <div class="card mx-auto" style="max-width: 650px;">
+    <div class="card profile-edit-card">
         <div class="card-body">
             <h2 class="mb-4">Editar perfil</h2>
 

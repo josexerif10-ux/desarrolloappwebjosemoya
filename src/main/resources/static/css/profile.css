@@ -1,0 +1,23 @@
+.profile-card {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.profile-avatar-lg {
+    width:80px;
+    height:80px;
+    object-fit:cover;
+    border-radius:50%;
+}
+
+.profile-edit-card {
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+.profile-avatar-preview {
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 50%;
+}

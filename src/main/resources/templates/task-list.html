@@ -10,6 +10,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link th:href="@{/css/main.css}" rel="stylesheet"/>
+    <link th:href="@{/css/task.css}" rel="stylesheet"/>
 </head>
 
 <body class="d-flex flex-column h-100">
@@ -18,7 +19,7 @@
     <div class="container-fluid">
 
         <h1 class="d-flex align-items-center fs-4 text-white mb-0">
-            <img th:src="@{/img/descarga.jfif}" width="38" height="30" class="me-3" alt="Logo">
+            <img th:src="@{/img/TASKhiveLOGO.png}" width="38" height="30" class="me-3" alt="Logo">
             TaskHive
         </h1>
 
@@ -59,8 +60,7 @@
                         <li><a class="dropdown-item" th:href="@{/profile}">Mi perfil</a></li>
                         <li>
                             <form th:action="@{/logout}" method="post" id="logoutForm"></form>
-                            <a class="dropdown-item" href="#"
-                               onclick="document.getElementById('logoutForm').submit(); return false;">
+                            <a class="dropdown-item" href="#" id="logoutLink">
                                 Logout
                             </a>
                         </li>
@@ -215,7 +215,7 @@
                              th:if="${param.emptyListError != null}">
                             <h2>Crea tu primera tarea</h2>
                             <p class="text-muted">Todavía no tienes tareas creadas. Usa el formulario de arriba para empezar.</p>
-                            <img th:src="@{/img/error.jpg}" alt="Sin tareas" class="empty-state-image">
+                            <img th:src="@{/img/ERRORenTASKHIVE.png}" alt="Sin tareas" class="empty-state-image">
                         </div>
 
                         <!-- TABLA TAREAS -->
@@ -245,7 +245,7 @@
                                 <td>
                                     <a th:href="@{/task/{id}(id=${task.id})}" class="btn btn-primary btn-sm">View</a>
                                     <a class="btn btn-danger btn-sm" th:onclick="|deleteTask(${task.id})|">Delete</a>
-                                    <form style="display:none"
+                                    <form class="delete-task-form"
                                           th:action="@{/task/{id}/del(id=${task.id})}"
                                           method="post"
                                           th:id="${'delete-task-'+task.id}"></form>
@@ -262,14 +262,7 @@
     </div>
 </main>
 
-<script>
-    function deleteTask(id) {
-        if (confirm('Are you sure?')) {
-            document.getElementById('delete-task-' + id).submit();
-        }
-    }
-</script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/task-list.js}"></script>
 </body>
 </html>

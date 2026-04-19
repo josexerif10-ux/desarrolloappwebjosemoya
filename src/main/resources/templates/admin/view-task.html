@@ -6,6 +6,7 @@
   <title>View Task</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
   <link href="../static/css/main.css" th:href="@{/css/main.css}" rel="stylesheet" />
+  <link th:href="@{/css/admin/admin.css}" rel="stylesheet" />
 </head>
 <body class="d-flex flex-column h-100">
 <nav class="navbar navbar-expand navbar-dark bg-dark" aria-label="Second navbar example">
@@ -20,16 +21,16 @@
         <li class="nav-item">
           <a class="nav-link" href="#" th:href="@{/admin/}">Home</a>
         </li>
-        <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
           <a class="nav-link" href="#" th:href="@{/admin/user}">Users</a>
         </li>
-        <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
           <a class="nav-link" href="#" th:href="@{/admin/category}">Categories</a>
         </li>
-        <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
           <a class="nav-link" href="#" th:href="@{/admin/task}">Tasks</a>
         </li>
-        <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
           <a class="nav-link" href="#" th:href="@{/task}">User Tasks</a>
         </li>
       </ul>
@@ -46,7 +47,7 @@
 
               <img th:src="${auth.avatar}"
                    alt="Avatar"
-                   style="width:32px; height:32px; object-fit:cover; border-radius:50%; margin-right:8px;">
+                   class="admin-navbar-avatar">
 
               <span th:text="${auth.fullname}">User</span>
             </a>
@@ -55,11 +56,8 @@
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
             <li><a class="dropdown-item" th:href="@{/profile}">Mi perfil</a></li>
             <li>
-              <form style="display:none" th:action="@{/logout}" method="POST" id="logoutForm"></form>
-              <a class="dropdown-item" href="#"
-                 onclick="document.getElementById('logoutForm').submit(); return false;">
-                Logout
-              </a>
+              <form class="hidden-form" th:action="@{/logout}" method="POST" id="logoutForm"></form>
+              <a class="dropdown-item" href="#" id="logoutLink">Logout</a>
             </li>
           </ul>
         </li>
@@ -72,8 +70,8 @@
   </div>
 </nav>
 
-<main>
-  <div class="container py-5 h-100">
+<main class="admin-view-task-main">
+  <div class="container admin-view-task-container py-5 h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
       <div class="col">
         <div class="card rounded-3">
@@ -104,7 +102,8 @@
                     <option value="-1">---</option>
                     <option th:each="category : ${categories}"
                             th:value="${category.id}" th:text="${category.title}">
-                      Category</option>
+                      Category
+                    </option>
                   </select>
                 </div>
               </div>
@@ -144,6 +143,7 @@
         </div>
       </div>
     </div>
+  </div>
 </main>
 
 <footer class="footer mt-auto py-3 bg-light fixed-bottom">
@@ -154,5 +154,6 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script th:src="@{/js/admin/viewtasks.js}"></script>
 </body>
 </html>

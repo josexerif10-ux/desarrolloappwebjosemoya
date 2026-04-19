@@ -4,20 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin Tasks</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="../../static/css/main.css" th:href="@{/css/main.css}" rel="stylesheet" />
-  <style>
-    main {
-      margin-top: 25px;
-    }
-
-    main div.container {
-      max-width: 960px;
-    }
-  </style>
+  <link th:href="@{/css/admin/admin.css}" rel="stylesheet" />
 </head>
 <body class="d-flex flex-column h-100">
-<nav class="navbar navbar-expand navbar-dark bg-dark" aria-label="Second navbar example">
+<nav class="navbar navbar-expand navbar-dark bg-dark">
   <div class="container-fluid">
     <h1 class="d-flex align-items-center fs-4 text-white mb-0">
       <img src="../../static/img/TASKhiveLogo.png" th:src="@{/img/TASKhiveLogo.png}"
@@ -29,16 +21,16 @@
         <li class="nav-item">
           <a class="nav-link" href="#" th:href="@{/admin/}">Home</a>
         </li>
-        <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
           <a class="nav-link" href="#" th:href="@{/admin/user}">Users</a>
         </li>
-        <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
           <a class="nav-link" href="#" th:href="@{/admin/category}">Categories</a>
         </li>
-        <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
-          <a class="nav-link active" href="#" aria-current="page"  th:href="@{/admin/task}">Tasks</a>
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+          <a class="nav-link active" href="#" aria-current="page" th:href="@{/admin/task}">Tasks</a>
         </li>
-        <li class="nav-item" sec:authorize="hasRole('ROLE_ADMIN')">
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
           <a class="nav-link" href="#" th:href="@{/task}">User Tasks</a>
         </li>
       </ul>
@@ -55,7 +47,7 @@
 
               <img th:src="${auth.avatar}"
                    alt="Avatar"
-                   style="width:32px; height:32px; object-fit:cover; border-radius:50%; margin-right:8px;">
+                   CLASS="admin-navbar-avatar">
 
               <span th:text="${auth.fullname}">User</span>
             </a>
@@ -64,11 +56,8 @@
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
             <li><a class="dropdown-item" th:href="@{/profile}">Mi perfil</a></li>
             <li>
-              <form style="display:none" th:action="@{/logout}" method="POST" id="logoutForm"></form>
-              <a class="dropdown-item" href="#"
-                 onclick="document.getElementById('logoutForm').submit(); return false;">
-                Logout
-              </a>
+              <form class="hidden-form" th:action="@{/logout}" method="POST" id="logoutForm"></form>
+              <a class="dropdown-item" href="#" id="logoutLink">Logout</a>
             </li>
           </ul>
         </li>
@@ -81,12 +70,12 @@
   </div>
 </nav>
 
-<main class="flex-shrink-0">
-  <div class="container">
+<main class="flex-shrink-0 admin-task-main">
+  <div class="container admin-task-container">
 
-    <div class="container" style="margin-top: 50px;" th:if="${param.emptyListError != null}">
-      <img src="../static/img/empty-list.jpg" th:src="@{/img/empty-list.jpg}"
-           width="100%"/>
+    <div class="container admin-empty-list-container" th:if="${param.emptyListError != null}">
+      <img src="../static/img/LISTAVACIA.png" th:src="@{/img/LISTAVACIA.png}"
+           class="admin-empty-list-image"/>
     </div>
 
     <table class="table mb-4" th:if="${param.emptyListError == null}">
@@ -104,11 +93,11 @@
         <th scope="row" th:text="${task.id}">1</th>
         <td th:text="${task.author.fullname}">Author</td>
         <td th:text="${task.title}">Buy groceries for next week</td>
-        <td th:text="${#strings.abbreviate(task.description,50)}">Lorem ipsum dolor sit amet </td>
+        <td th:text="${#strings.abbreviate(task.description,50)}">TAREAS</td>
         <td>
           <a href="#" th:href="@{/admin/task/{id}(id=${task.id})}" class="btn btn-primary">View</a>
           <a class="btn btn-danger" th:onclick="|deleteTask(${task.id})|">Delete</a>
-          <form style="display:none" th:action="@{/admin/task/{id}/del(id=${task.id})}" method="post" th:id="${'delete-task-'+task.id}"></form>
+          <form class="hidden-form" th:action="@{/admin/task/{id}/del(id=${task.id})}" method="post" th:id="${'delete-task-'+task.id}"></form>
         </td>
       </tr>
       </tbody>
@@ -124,14 +113,7 @@
   </div>
 </footer>
 
-<script>
-  function deleteTask(id) {
-    if (confirm('Are you sure to delete this Task?')) {
-      document.getElementById('delete-task-'+id).submit();
-    }
-  }
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/admin/admintasks.js}"></script>
 </body>
 </html>

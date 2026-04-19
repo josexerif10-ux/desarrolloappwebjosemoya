@@ -1,0 +1,61 @@
+.admin-navbar-avatar{
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.hidden-form {
+    display: none;
+}
+
+/* Admin categories */
+.admin-category-main {
+    margin-top: 25px;
+}
+
+.admin-category-container {
+    max-width: 960px;
+}
+
+.admin-category-save-row {
+    margin-top: 10px;
+}
+
+/* Admin tasks */
+.admin-task-main {
+    margin-top: 25px;
+}
+
+.admin-task-container {
+    max-width: 960px;
+}
+
+.admin-empty-list-container {
+    margin-top: 50px;
+}
+
+.admin-empty-list-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Admin users */
+.admin-users-main {
+    margin-top: 25px;
+}
+
+.admin-users-container {
+    max-width: 960px;
+}
+
+/* View task */
+.admin-view-task-main {
+    margin-top: 25px;
+}
+
+.admin-view-task-container {
+    max-width: 960px;
+}
