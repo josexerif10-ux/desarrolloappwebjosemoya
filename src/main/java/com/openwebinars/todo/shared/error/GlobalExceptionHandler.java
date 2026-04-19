@@ -1,4 +1,3 @@
-
 package com.openwebinars.todo.shared.error;
 
 import com.openwebinars.todo.task.exception.EmptyTaskListException;
@@ -12,7 +11,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmptyTaskListException.class)
     public String emptyTaskList(EmptyTaskListException ex, RedirectAttributes redirectAttributes) {
         redirectAttributes.addAttribute("emptyListError", true);
-        return "redirect:/";
+        return "redirect:/task";
     }
 
 }

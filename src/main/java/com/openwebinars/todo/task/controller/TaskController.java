@@ -110,4 +110,19 @@ public class TaskController {
         taskService.deleteByIdForUser(id, user);
         return "redirect:/";
     }
+
+    @GetMapping(value = {"/task", "/list"}, params = "emptyListError")
+    public String emptyTaskListView(Model model,
+                                    @AuthenticationPrincipal User user) {
+        model.addAttribute("taskList", List.of());
+        model.addAttribute("newTask", new CreateTaskRequest());
+
+        model.addAttribute("filterTitle", null);
+        model.addAttribute("filterCompleted", null);
+        model.addAttribute("filterCategoryId", null);
+        model.addAttribute("filterFrom", null);
+        model.addAttribute("filterTo", null);
+
+        return "task-list";
+    }
 }
