@@ -103,7 +103,9 @@
                             <div class="col-12">
                                 <label class="form-label">Título de la tarea</label>
                                 <input type="text" class="form-control" th:field="*{title}"/>
-                                <div class="text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                                <div class="text-danger"
+                                     th:if="${#fields.hasErrors('title')}"
+                                     th:errors="*{title}"></div>
                             </div>
 
                             <div class="col-12">
@@ -120,7 +122,9 @@
                                             th:text="${category.title}">
                                     </option>
                                 </select>
-                                <div class="text-danger" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
+                                <div class="text-danger"
+                                     th:if="${#fields.hasErrors('categoryId')}"
+                                     th:errors="*{categoryId}"></div>
                             </div>
 
                             <div class="col-12">
@@ -194,6 +198,23 @@
                                             th:text="${category.title}"
                                             th:selected="${filterCategoryId != null and filterCategoryId == category.id}">
                                     </option>
+                                </select>
+                            </div>
+
+                            <div class="col-auto">
+                                <label class="form-label mb-0">Ordenar por</label>
+                                <select class="form-select form-select-sm" name="sortBy">
+                                    <option value="createdAt" th:selected="${sortBy == 'createdAt'}">Fecha creación</option>
+                                    <option value="title" th:selected="${sortBy == 'title'}">Título</option>
+                                    <option value="completed" th:selected="${sortBy == 'completed'}">Estado</option>
+                                </select>
+                            </div>
+
+                            <div class="col-auto">
+                                <label class="form-label mb-0">Dirección</label>
+                                <select class="form-select form-select-sm" name="direction">
+                                    <option value="asc" th:selected="${direction == 'asc'}">Ascendente</option>
+                                    <option value="desc" th:selected="${direction == 'desc'}">Descendente</option>
                                 </select>
                             </div>
 
@@ -278,7 +299,8 @@
                                th:if="${currentPage > 0}"
                                th:href="@{/task(page=${currentPage - 1}, size=${pageSize},
                                                  title=${filterTitle}, completed=${filterCompleted},
-                                                 categoryId=${filterCategoryId}, from=${filterFrom}, to=${filterTo})}">
+                                                 categoryId=${filterCategoryId}, from=${filterFrom}, to=${filterTo},
+                                                 sortBy=${sortBy}, direction=${direction})}">
                                 Anterior
                             </a>
 
@@ -287,7 +309,8 @@
                                    th:classappend="${i == currentPage} ? 'btn-primary' : 'btn-outline-primary'"
                                    th:href="@{/task(page=${i}, size=${pageSize},
                                                      title=${filterTitle}, completed=${filterCompleted},
-                                                     categoryId=${filterCategoryId}, from=${filterFrom}, to=${filterTo})}"
+                                                     categoryId=${filterCategoryId}, from=${filterFrom}, to=${filterTo},
+                                                     sortBy=${sortBy}, direction=${direction})}"
                                    th:text="${i + 1}">
                                     1
                                 </a>
@@ -297,7 +320,8 @@
                                th:if="${currentPage < totalPages - 1}"
                                th:href="@{/task(page=${currentPage + 1}, size=${pageSize},
                                                  title=${filterTitle}, completed=${filterCompleted},
-                                                 categoryId=${filterCategoryId}, from=${filterFrom}, to=${filterTo})}">
+                                                 categoryId=${filterCategoryId}, from=${filterFrom}, to=${filterTo},
+                                                 sortBy=${sortBy}, direction=${direction})}">
                                 Siguiente
                             </a>
                         </div>

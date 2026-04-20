@@ -15,8 +15,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -171,14 +173,29 @@ public class TaskService {
 
         return taskRepository.save(task);
     }
-    public Page<Task> findPageFiltered(User user, String title, Boolean completed, Long categoryId,
-                                       LocalDate from, LocalDate to, int page, int size) {
+    public Page<Task> findPageFiltered(User user,
+                                       String title,
+                                       Boolean completed,
+                                       Long categoryId,
+                                       LocalDate from,
+                                       LocalDate to,
+                                       int page,
+                                       int size,
+                                       String sortBy,
+                                       String direction) {
 
         if (user == null) {
             throw new EmptyTaskListException();
         }
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
+        String safeSortBy = (sortBy == null || sortBy.isBlank()) ? "createdAt" : sortBy;
+        String safeDirection = (direction == null || direction.isBlank()) ? "asc" : direction;
+
+        Sort sort = safeDirection.equalsIgnoreCase("desc")
+                ? Sort.by(safeSortBy).descending()
+                : Sort.by(safeSortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         String safeTitle = (title != null) ? title.trim() : "";
         boolean hasTitle = !safeTitle.isBlank();
@@ -211,7 +228,6 @@ public class TaskService {
             result = taskRepository.findByAuthorAndTitleContainingIgnoreCaseAndCompletedAndCategory_Id(user, safeTitle, completed, categoryId, pageable);
         }
 
-        // Filtrado extra por fecha sobre el contenido actual
         if (from != null || to != null) {
             List<Task> filtered = result.getContent().stream()
                     .filter(task -> {
@@ -230,7 +246,7 @@ public class TaskService {
                 throw new EmptyTaskListException();
             }
 
-            return new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
+            return new PageImpl<>(filtered, pageable, filtered.size());
         }
 
         if (result.isEmpty()) {
@@ -239,7 +255,6 @@ public class TaskService {
 
         return result;
     }
-
     private Task createOrEditTaskWithExisting(EditTaskRequest req, Task oldTask) {
 
         Task task = Task.builder()

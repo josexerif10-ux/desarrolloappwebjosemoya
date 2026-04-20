@@ -42,9 +42,13 @@ public class TaskController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
     ) {
-        Page<Task> taskPage = taskService.findPageFiltered(user, title, completed, categoryId, from, to, page, size);
+        Page<Task> taskPage = taskService.findPageFiltered(
+                user, title, completed, categoryId, from, to, page, size, sortBy, direction
+        );
 
         model.addAttribute("taskPage", taskPage);
         model.addAttribute("taskList", taskPage.getContent());
@@ -59,6 +63,9 @@ public class TaskController {
         model.addAttribute("filterCategoryId", categoryId);
         model.addAttribute("filterFrom", from);
         model.addAttribute("filterTo", to);
+
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("direction", direction);
 
         return "task-list";
     }
@@ -137,6 +144,9 @@ public class TaskController {
         model.addAttribute("filterCategoryId", null);
         model.addAttribute("filterFrom", null);
         model.addAttribute("filterTo", null);
+
+        model.addAttribute("sortBy", "createdAt");
+        model.addAttribute("direction", "asc");
 
         return "task-list";
     }
