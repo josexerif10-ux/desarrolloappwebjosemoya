@@ -6,8 +6,8 @@ import com.openwebinars.todo.task.dto.CreateTaskRequest;
 import com.openwebinars.todo.task.service.TaskService;
 import com.openwebinars.todo.user.dto.CreateUserRequest;
 import com.openwebinars.todo.user.model.User;
-import com.openwebinars.todo.user.model.UserRole;
 import com.openwebinars.todo.user.model.UserRepository;
+import com.openwebinars.todo.user.model.UserRole;
 import com.openwebinars.todo.user.service.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,6 @@ public class DataSeed {
     }
 
     private List<User> insertUsers() {
-
         List<User> result = new ArrayList<>();
 
         CreateUserRequest req = CreateUserRequest.builder()
@@ -69,10 +68,9 @@ public class DataSeed {
     }
 
     private void insertTasks(User author) {
-
         CreateTaskRequest req1 = CreateTaskRequest.builder()
-                .title("First task!")
-                .description("Lorem ipsum dolor sit amet")
+                .title("Primera tarea!")
+                .description("Esta es la primera tarea")
                 .tags("tag1,tag2,tag3")
                 .categoryId(1L)
                 .build();
@@ -80,8 +78,8 @@ public class DataSeed {
         taskService.createTask(req1, author);
 
         CreateTaskRequest req2 = CreateTaskRequest.builder()
-                .title("Second task!")
-                .description("Lorem ipsum dolor sit amet")
+                .title("Segunda tarea!")
+                .description("Esta es la segunda tarea")
                 .tags("tag1,tag2,tag4")
                 .categoryId(1L)
                 .build();

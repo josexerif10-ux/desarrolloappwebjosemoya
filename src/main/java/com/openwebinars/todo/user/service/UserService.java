@@ -59,6 +59,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public long countAllUsers() {
+        return userRepository.count();
+    }
+
     public User changeRole(User user, UserRole userRole) {
         user.setRole(userRole);
         return userRepository.save(user);

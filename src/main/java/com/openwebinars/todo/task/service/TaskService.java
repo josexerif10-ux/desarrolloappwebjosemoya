@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import com.openwebinars.todo.task.dto.TopUserTaskCount;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -287,6 +288,28 @@ public class TaskService {
         task.setCompleted(req.isCompleted());
 
         return taskRepository.save(task);
+    }
+
+    public long countAllTasks() {
+        return taskRepository.count();
+    }
+
+    public long countCompletedTasks() {
+        return taskRepository.countByCompleted(true);
+    }
+
+    public long countPendingTasks() {
+        return taskRepository.countByCompleted(false);
+    }
+
+    public List<TopUserTaskCount> getTopUsersByTaskCount() {
+        return taskRepository.findTopUsersByTaskCount()
+                .stream()
+                .map(row -> new TopUserTaskCount(
+                        (String) row[0],
+                        ((Number) row[1]).longValue()
+                ))
+                .toList();
     }
 
     public Task toggleCompleteForUser(Long id, User user) {

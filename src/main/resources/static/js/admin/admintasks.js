@@ -1,17 +1,17 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const logoutLink = document.getElementById('logoutLink');
-    const logoutForm = document.getElementById('logoutForm');
+document.addEventListener("DOMContentLoaded", () => {
+    const deleteForms = document.querySelectorAll(".js-admin-delete-form");
 
-    if (logoutLink && logoutForm) {
-        logoutLink.addEventListener('click', function (event) {
-            event.preventDefault();
-            logoutForm.submit();
+    deleteForms.forEach(form => {
+        form.addEventListener("submit", (event) => {
+            const taskTitle = form.dataset.taskTitle || "esta tarea";
+
+            const confirmed = window.confirm(
+                `¿Seguro que quieres eliminar "${taskTitle}"? Esta acción no se puede deshacer.`
+            );
+
+            if (!confirmed) {
+                event.preventDefault();
+            }
         });
-    }
+    });
 });
-
-function deleteTask(id) {
-    if (confirm('Are you sure to delete this Task?')) {
-        document.getElementById('delete-task-' + id).submit();
-    }
-}
