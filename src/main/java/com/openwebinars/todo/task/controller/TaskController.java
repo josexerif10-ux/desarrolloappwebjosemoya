@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -39,10 +40,19 @@ public class TaskController {
             @RequestParam(required = false) Boolean completed,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
     ) {
-        model.addAttribute("taskList", taskService.findAllFiltered(user, title, completed, categoryId, from, to));
+        Page<Task> taskPage = taskService.findPageFiltered(user, title, completed, categoryId, from, to, page, size);
+
+        model.addAttribute("taskPage", taskPage);
+        model.addAttribute("taskList", taskPage.getContent());
         model.addAttribute("newTask", new CreateTaskRequest());
+
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalPages", taskPage.getTotalPages());
 
         model.addAttribute("filterTitle", title);
         model.addAttribute("filterCompleted", completed);
@@ -115,7 +125,12 @@ public class TaskController {
     public String emptyTaskListView(Model model,
                                     @AuthenticationPrincipal User user) {
         model.addAttribute("taskList", List.of());
+        model.addAttribute("taskPage", Page.empty());
         model.addAttribute("newTask", new CreateTaskRequest());
+
+        model.addAttribute("currentPage", 0);
+        model.addAttribute("pageSize", 5);
+        model.addAttribute("totalPages", 0);
 
         model.addAttribute("filterTitle", null);
         model.addAttribute("filterCompleted", null);

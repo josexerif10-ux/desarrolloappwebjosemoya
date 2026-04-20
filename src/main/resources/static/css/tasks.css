@@ -1,3 +1,25 @@
+.task-page-container {
+    max-width: 1100px;
+}
+
+.task-form-select {
+    margin-top: 8px;
+}
+
+.task-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.task-badge {
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+.task-edit-container {
+    max-width: 900px;
+}
+
 .delete-task-form {
     display: none;
 }

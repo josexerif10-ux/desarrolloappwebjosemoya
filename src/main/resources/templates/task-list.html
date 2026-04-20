@@ -19,7 +19,7 @@
     <div class="container-fluid">
 
         <h1 class="d-flex align-items-center fs-4 text-white mb-0">
-            <img th:src="@{/img/TASKhiveLOGO.png}" width="38" height="30" class="me-3" alt="Logo">
+            <img th:src="@{/img/TASKhiveLOGO.png}" alt="Logo" class="brand-logo me-3">
             TaskHive
         </h1>
 
@@ -59,10 +59,12 @@
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li><a class="dropdown-item" th:href="@{/profile}">Mi perfil</a></li>
                         <li>
-                            <form th:action="@{/logout}" method="post" id="logoutForm"></form>
-                            <a class="dropdown-item" href="#" id="logoutLink">
-                                Logout
-                            </a>
+                            <form th:action="@{/logout}" method="post" class="m-0">
+                                <input type="hidden"
+                                       th:name="${_csrf.parameterName}"
+                                       th:value="${_csrf.token}" />
+                                <button type="submit" class="dropdown-item">Logout</button>
+                            </form>
                         </li>
                     </ul>
                 </li>
@@ -76,7 +78,7 @@
 </nav>
 
 <main>
-    <div class="container page-container py-5 h-100">
+    <div class="container page-container task-page-container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
             <div class="col">
 
@@ -89,6 +91,10 @@
                               method="POST"
                               th:object="${newTask}"
                               sec:authorize="hasRole('USER')">
+
+                            <input type="hidden"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}" />
 
                             <div class="col-12">
                                 <h3>Crea una nueva tarea</h3>
@@ -107,7 +113,7 @@
 
                             <div class="col-12">
                                 <label class="form-label">Categoría</label>
-                                <select class="form-select" th:field="*{categoryId}">
+                                <select class="form-select task-form-select" th:field="*{categoryId}">
                                     <option value="-1">---</option>
                                     <option th:each="category : ${categories}"
                                             th:value="${category.id}"
@@ -192,6 +198,7 @@
                             </div>
 
                             <div class="col-auto">
+                                <input type="hidden" name="size" th:value="${pageSize != null ? pageSize : 5}">
                                 <button class="btn btn-sm btn-primary" type="submit">Aplicar</button>
                                 <a class="btn btn-sm btn-outline-secondary" th:href="@{/task}">Limpiar</a>
                             </div>
@@ -202,6 +209,11 @@
                               th:action="@{/category/submit}"
                               method="post"
                               sec:authorize="hasRole('ROLE_USER')">
+
+                            <input type="hidden"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}" />
+
                             <input class="form-control"
                                    type="text"
                                    name="title"
@@ -219,7 +231,7 @@
                         </div>
 
                         <!-- TABLA TAREAS -->
-                        <table class="table mb-4" th:if="${param.emptyListError == null}">
+                        <table class="table mb-4 task-table" th:if="${param.emptyListError == null}">
                             <thead>
                             <tr>
                                 <th>Id.</th>
@@ -239,8 +251,8 @@
                                 <td th:text="${#strings.abbreviate(task.description,50)}">Texto</td>
                                 <td th:text="${task.dueDate != null ? task.dueDate : 'Sin fecha'}"></td>
                                 <td>
-                                    <span class="badge bg-success" th:if="${task.completed}">Completada</span>
-                                    <span class="badge bg-warning text-dark" th:unless="${task.completed}">Pendiente</span>
+                                    <span class="badge bg-success task-badge" th:if="${task.completed}">Completada</span>
+                                    <span class="badge bg-warning text-dark task-badge" th:unless="${task.completed}">Pendiente</span>
                                 </td>
                                 <td>
                                     <a th:href="@{/task/{id}(id=${task.id})}" class="btn btn-primary btn-sm">View</a>
@@ -248,11 +260,47 @@
                                     <form class="delete-task-form"
                                           th:action="@{/task/{id}/del(id=${task.id})}"
                                           method="post"
-                                          th:id="${'delete-task-'+task.id}"></form>
+                                          th:id="${'delete-task-'+task.id}">
+                                        <input type="hidden"
+                                               th:name="${_csrf.parameterName}"
+                                               th:value="${_csrf.token}" />
+                                    </form>
                                 </td>
                             </tr>
                             </tbody>
                         </table>
+
+                        <!-- PAGINACIÓN -->
+                        <div class="d-flex justify-content-center align-items-center gap-2 mt-4"
+                             th:if="${param.emptyListError == null and totalPages > 1}">
+
+                            <a class="btn btn-outline-secondary btn-sm"
+                               th:if="${currentPage > 0}"
+                               th:href="@{/task(page=${currentPage - 1}, size=${pageSize},
+                                                 title=${filterTitle}, completed=${filterCompleted},
+                                                 categoryId=${filterCategoryId}, from=${filterFrom}, to=${filterTo})}">
+                                Anterior
+                            </a>
+
+                            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                                <a class="btn btn-sm"
+                                   th:classappend="${i == currentPage} ? 'btn-primary' : 'btn-outline-primary'"
+                                   th:href="@{/task(page=${i}, size=${pageSize},
+                                                     title=${filterTitle}, completed=${filterCompleted},
+                                                     categoryId=${filterCategoryId}, from=${filterFrom}, to=${filterTo})}"
+                                   th:text="${i + 1}">
+                                    1
+                                </a>
+                            </span>
+
+                            <a class="btn btn-outline-secondary btn-sm"
+                               th:if="${currentPage < totalPages - 1}"
+                               th:href="@{/task(page=${currentPage + 1}, size=${pageSize},
+                                                 title=${filterTitle}, completed=${filterCompleted},
+                                                 categoryId=${filterCategoryId}, from=${filterFrom}, to=${filterTo})}">
+                                Siguiente
+                            </a>
+                        </div>
 
                     </div>
                 </div>

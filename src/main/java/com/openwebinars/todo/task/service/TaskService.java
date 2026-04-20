@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -167,6 +170,74 @@ public class TaskService {
         task.setCompleted(false);
 
         return taskRepository.save(task);
+    }
+    public Page<Task> findPageFiltered(User user, String title, Boolean completed, Long categoryId,
+                                       LocalDate from, LocalDate to, int page, int size) {
+
+        if (user == null) {
+            throw new EmptyTaskListException();
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").ascending());
+
+        String safeTitle = (title != null) ? title.trim() : "";
+        boolean hasTitle = !safeTitle.isBlank();
+        boolean hasCategory = categoryId != null && categoryId > 0;
+
+        Page<Task> result;
+
+        if (!hasTitle && completed == null && !hasCategory) {
+            result = taskRepository.findByAuthor(user, pageable);
+
+        } else if (hasTitle && completed == null && !hasCategory) {
+            result = taskRepository.findByAuthorAndTitleContainingIgnoreCase(user, safeTitle, pageable);
+
+        } else if (!hasTitle && completed != null && !hasCategory) {
+            result = taskRepository.findByAuthorAndCompleted(user, completed, pageable);
+
+        } else if (!hasTitle && completed == null && hasCategory) {
+            result = taskRepository.findByAuthorAndCategory_Id(user, categoryId, pageable);
+
+        } else if (!hasTitle && completed != null && hasCategory) {
+            result = taskRepository.findByAuthorAndCompletedAndCategory_Id(user, completed, categoryId, pageable);
+
+        } else if (hasTitle && completed != null && !hasCategory) {
+            result = taskRepository.findByAuthorAndTitleContainingIgnoreCaseAndCompleted(user, safeTitle, completed, pageable);
+
+        } else if (hasTitle && completed == null && hasCategory) {
+            result = taskRepository.findByAuthorAndTitleContainingIgnoreCaseAndCategory_Id(user, safeTitle, categoryId, pageable);
+
+        } else {
+            result = taskRepository.findByAuthorAndTitleContainingIgnoreCaseAndCompletedAndCategory_Id(user, safeTitle, completed, categoryId, pageable);
+        }
+
+        // Filtrado extra por fecha sobre el contenido actual
+        if (from != null || to != null) {
+            List<Task> filtered = result.getContent().stream()
+                    .filter(task -> {
+                        boolean ok = true;
+                        if (from != null) {
+                            ok = ok && !task.getCreatedAt().isBefore(from.atStartOfDay());
+                        }
+                        if (to != null) {
+                            ok = ok && !task.getCreatedAt().isAfter(to.atTime(LocalTime.MAX));
+                        }
+                        return ok;
+                    })
+                    .toList();
+
+            if (filtered.isEmpty()) {
+                throw new EmptyTaskListException();
+            }
+
+            return new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
+        }
+
+        if (result.isEmpty()) {
+            throw new EmptyTaskListException();
+        }
+
+        return result;
     }
 
     private Task createOrEditTaskWithExisting(EditTaskRequest req, Task oldTask) {
