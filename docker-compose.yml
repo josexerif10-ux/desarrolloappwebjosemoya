@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: taskhive-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: taskhive_db_josemoya
+      MYSQL_USER: taskhive_user
+      MYSQL_PASSWORD: TaskHive123!
+      MYSQL_ROOT_PASSWORD: RootTaskHive123!
+    ports:
+      - "3307:3306"
+    volumes:
+      - taskhive_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "taskhive_user", "-pTaskHive123!"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    image: taskhive-app:latest
+    container_name: taskhive-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/taskhive_db_josemoya?useSSL=false&serverTimezone=Europe/Madrid&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: taskhive_user
+      SPRING_DATASOURCE_PASSWORD: TaskHive123!
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      PORT: 8080
+    ports:
+      - "8080:8080"
+
+volumes:
+  taskhive_mysql_data:
